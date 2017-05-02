@@ -6,7 +6,7 @@ from nltk.util import skipgrams
 from os import listdir
 from os.path import isfile, join
 
-PROP_FILE = "props.txt"
+PROP_FILE = "properties"
 
 def loadProps():
   d = {}
@@ -59,10 +59,13 @@ def scoreFile(filePath, occurrences, gramOccurrences, props, k, b):
   keys = list(occurrences.keys())
   grams = list(gramOccurrences.keys())
   for key, val in occurrences.iteritems():
+    numDocs = props["N"]
     relevantGrams = [gram for gram in grams if key in gram]
     for gram in relevantGrams:
       val += gramOccurrences[gram]
-    IDF = math.log((props["N"] - val + 0.5) / (val + 0.5))
+    if len(relevantGrams) > 0:
+      numDocs *= (len(relevantGrams) + 1)
+    IDF = math.log((numDocs - val + 0.5) / (val + 0.5))
     docOccurrences, docLength = docProps(filePath, key)
     for gram in relevantGrams:
       docOccurrences += totalGramOccurrences(filePath, gram)
@@ -78,7 +81,7 @@ def main(argv):
   props = loadProps()
   k = float(argv[1])
   b = float(argv[2])
-  searchPath = "Presidents/"
+  searchPath = "Presidents/output"
 
   query = str(raw_input("Enter a query: "))
   tokenized = [s.lower() for s in query.split()]
@@ -88,7 +91,6 @@ def main(argv):
 
   for s in tokenized:
     occurrences[s] = countOccurrences(s, searchPath)
-  print(occurrences)
 
   # Skip grams
   for gram in list(skipgrams(tokenized, 2, 2)):
