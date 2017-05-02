@@ -6,6 +6,7 @@ import errno
 from sys import argv
 try: 
     from BeautifulSoup import BeautifulSoup
+    from BeautifulSoup import Comment
 except ImportError:
     from bs4 import BeautifulSoup
 
@@ -19,11 +20,17 @@ for name in glob.glob("*.html"):
 	print str(i)+': '+name
 	try:
 		with open(name) as f:
+			# Beutiful Soup object
 			html = f.read()
 			parsed_html = BeautifulSoup(html)
+
+
+			# remove undesirables
 			[s.extract() for s in parsed_html('script')]
+			[s.extract() for s in parsed_html('cite')]
+
 			temp = open(writeDir+'/'+name.replace('.html',''),'w')
-			s = parsed_html.body.getText(' ').encode('utf-8')
+			s = parsed_html.body.getText('').encode('utf-8')
 			length += len(s)
 			temp.write(s)
 			temp.close()
@@ -31,7 +38,7 @@ for name in glob.glob("*.html"):
 		if exc.errno != errno.EISDIR: # Do not fail if a directory is found, just ignore it.
 			raise
 
-temp = open('properties','w')
+temp = open(writeDir+'/properties','w')
 temp.write('N '+str(i)+'\n')
 temp.write('avg '+str(length/i))
 
