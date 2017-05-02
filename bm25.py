@@ -6,7 +6,7 @@ from nltk.util import skipgrams
 from os import listdir
 from os.path import isfile, join
 
-PROP_FILE = "properties"
+PROP_FILE = "Presidents/output/properties"
 
 def loadProps():
   d = {}
